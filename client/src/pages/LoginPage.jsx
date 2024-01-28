@@ -1,25 +1,41 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 
-import { Link } from 'react-router-dom';
 
-function RegisterPage() {
+import { Link, useNavigate,  } from 'react-router-dom';
+import { UserContext } from '../UserContext';
+     
+
+
+function LoginPage() {
+  const [email,setEmail]=useState('')
+  const [password,setPassword]=useState('')
+  const navigate = useNavigate();
+
+  const {setUser}=useContext(UserContext)
     async function handleUserLogin(ev) {
         ev.preventDefault();
         try {
-            await axios.post('/login',{
+    // we have done const response so as to put the data in teh setuser 
+           const response = await axios.post('/login',{
                 email,
                 password
             });
+            setUser(response.data)
+            console.log(response.data);
             alert('Login successful. ');
+        navigate('/')
+           
             
         } catch (error) {
             alert('Login failed. Please try again ');
+
         }
+
+       
     }
 
-    const [email,setEmail]=useState('')
-    const [password,setPassword]=useState('')
+    
   return (
     <div className="mt-4 grow flex items-center justify-around">
     <div className="mb-64">
@@ -44,4 +60,4 @@ function RegisterPage() {
   );
 }
 
-export default RegisterPage;
+export default LoginPage;
