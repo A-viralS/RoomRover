@@ -21,11 +21,12 @@ function App() {
     <Routes>
 <Route path="/" element={<Layout/>}>
 <Route index element={<IndexPage />} />
+<Route path="/register" element={<RegisterPage/>}></Route>
   <Route path="/login" element={<LoginPage/>}></Route>
   <Route path="/account" element={<AccountPage/>}></Route>
+  <Route path="/account/:subpage?" element={<AccountPage/>}></Route>
 
- 
-  <Route path="/register" element={<RegisterPage/>}></Route>
+  
 
 
 </Route>
