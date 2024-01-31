@@ -3,6 +3,7 @@ import './App.css'
 import Layout from "./Layout";
 import LoginPage from "./pages/LoginPage"
 import IndexPage from "./pages/IndexPage"
+import './index.css'
 
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import RegisterPage from "./pages/RegisterPage";
@@ -25,6 +26,7 @@ function App() {
   <Route path="/login" element={<LoginPage/>}></Route>
   <Route path="/account" element={<AccountPage/>}></Route>
   <Route path="/account/:subpage?" element={<AccountPage/>}></Route>
+  <Route path="/account/:subpage/:action" element={<AccountPage/>}></Route>
 
   
 

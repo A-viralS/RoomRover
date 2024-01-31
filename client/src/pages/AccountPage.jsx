@@ -3,6 +3,7 @@ import { UserContext } from '../UserContext'
 import { Navigate, useNavigate, useParams, useResolvedPath } from 'react-router'
 import { Link, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
+import PlacesPage from './PlacesPage'
 
 
 const AccountPage = () => {
@@ -63,6 +64,11 @@ function linkClasses (type=null) {
 Logged in as {user.name} ({user.email})<br />
 <button className="primary max-w-sm mt-2" onClick={logout}>Logout</button>
 </div>
+)}
+
+{subpage.subpage=== 'places' && (
+
+<PlacesPage/>
 )}
     </div>
  

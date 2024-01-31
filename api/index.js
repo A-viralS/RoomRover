@@ -2,17 +2,25 @@ const express = require('express')
 require("dotenv").config()
 const cors=require('cors')
 const app=express();
+const path=require('path')
 const User= require('./models/User')
 const bcrypt = require('bcryptjs');
 const mongoose= require('mongoose')
 const jwt = require('jsonwebtoken')
 const cookieParser=require('cookie-parser')
-
-
+const multer=require('multer')
+const imageDownloader=require('image-downloader')
+const fs=require('fs')
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret= "secret"
-
 app.use(cookieParser())
+
+const testPath=__dirname+'/uploads'
+console.log(testPath);
+app.use(express.static(path.resolve(testPath)));
+
+
+
 app.use(cors({
     credentials: true,
     origin: 'http://localhost:5173',
@@ -86,5 +94,29 @@ try {
     })
 
 
+    app.post('/upload-by-link', async (req,res)=>{
+      const {link}=req.body
+      const newName='photo'+Date.now()+'.jpg'
+     await imageDownloader.image({
+        url:link,
+        dest: testPath+'/'+newName
+      })
+      res.json(newName)
+    });
+    
+const photoMiddleware=multer({dest:'uploads/'});
+
+    app.post('/upload',photoMiddleware.array('photos',100),(req,res)=>{
+      const uploadedFiles =[];
+      for (let i = 0; i < req.files.length; i++) {
+      const {path, originalname} = req.files[i];
+      const parts = originalname.split('.');
+      const ext = parts [parts.length- 1];
+      const newPath = path + '.' + ext;
+      fs.renameSync (path, newPath);
+      uploadedFiles.push (newPath.replace('uploads/',''));//replaces uploads in the name of file to empty string
+      res.json(uploadedFiles);
+      }
+    })
 PORT=4000
   app.listen(PORT, ()=>console.log(`server running on port ${PORT}`))
