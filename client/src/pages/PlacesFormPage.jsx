@@ -57,7 +57,7 @@ const PlacesFormPage = () => {
     setRedirect(true)
 
   }
-  if(redirect&&action==='new'){
+  if(redirect&&action!='new'){
     navigate('/account/places')
   }
   return (
