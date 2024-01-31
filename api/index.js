@@ -4,6 +4,7 @@ const cors=require('cors')
 const app=express();
 const path=require('path')
 const User= require('./models/User')
+const Place=require('./models/Place')
 const bcrypt = require('bcryptjs');
 const mongoose= require('mongoose')
 const jwt = require('jsonwebtoken')
@@ -103,7 +104,7 @@ try {
       })
       res.json(newName)
     });
-    
+
 const photoMiddleware=multer({dest:'uploads/'});
 
     app.post('/upload',photoMiddleware.array('photos',100),(req,res)=>{
@@ -118,5 +119,26 @@ const photoMiddleware=multer({dest:'uploads/'});
       res.json(uploadedFiles);
       }
     })
+
+    app.post('/places', (req,res) => {
+      
+      const {token} = req.cookies;
+      const {
+        title,address,addedPhotos,description,price,
+        perks,extraInfo,checkIn,checkOut,maxGuests,
+      } = req.body;
+      jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+        if (err) throw err;
+        const placeDoc = await Place.create({
+          owner:userData.id,
+          price,title,address,
+          photos:addedPhotos,
+          description,perks,extraInfo,checkIn,checkOut,maxGuests,
+        });
+        res.json(placeDoc);
+      });
+    });
+
+
 PORT=4000
   app.listen(PORT, ()=>console.log(`server running on port ${PORT}`))

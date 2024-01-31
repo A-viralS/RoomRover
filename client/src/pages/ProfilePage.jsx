@@ -4,12 +4,14 @@ import { Navigate, useNavigate, useParams, useResolvedPath } from 'react-router'
 import { Link, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import PlacesPage from './PlacesPage'
+import AccountNav from '../AccountNav'
 
 
 const AccountPage = () => {
+
     const {ready,user,setUser}= useContext(UserContext)
     const [redirect,setRedirect]=useState(null);
-  
+  console.log(user);
 const navigate= useNavigate()
 // if(!ready){
 //     return 'loading...'
@@ -35,29 +37,10 @@ setRedirect('/')//uyaha se redirect hone pe index pe jana chahiye
 navigate(redirect)
   }
 
-function linkClasses (type=null) {
-    let classes = 'py-2 px-6';
-    console.log("check ",type,subpage);
-    if (type === subpage.subpage) {
-      
-    classes +=' bg-pink-500 text-blue-800 rounded-full' ;
-    }
-    return classes;
-    }
 
   return (
 <div>
-<nav className="w-full flex justify-center mt-8 gap-2">
-  <Link className={linkClasses('profile')} to={'/account'}>
-    My Profile
-  </Link>
-  <Link className={linkClasses('bookings')} to={'/account/bookings'}>
-    My bookings
-  </Link>
-  <Link className={linkClasses('places')} to={'/account/places'}>
-    My account
-  </Link>
-</nav>
+<AccountNav/>
 
 {subpage.subpage=== 'profile' && (
 <div className="text-center max-w-lg mx-auto">
