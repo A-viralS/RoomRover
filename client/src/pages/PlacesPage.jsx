@@ -1,17 +1,27 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import Perks from '../Perks';
 import axios from 'axios';
 import PhotosUploader from '../PhotosUploader';
 import { useNavigate } from 'react-router-dom';
 import PlacesFormPage from './PlacesFormPage';
+import AccountNav from '../AccountNav';
 
 
 const PlacesPage = () => {
-  
-  const {action}=useParams()
+  const [places,setPlaces]=useState([])
+  useEffect(()=>{
+axios.get('/places').then(({data})=>{
+setPlaces(data)
+})
+
+  },[])
+  places.map(place=>console.log(place.photos[0]))
+  const {action}=useParams();
+
   return (
     <div>
+      <AccountNav/>
       {action!='new'&&(
  <div className="text-center">
  <Link className="inline-flex gap-1 bg-primary text-white py-2 px-6 rounded-full" to={'/account/places/new'}>
@@ -22,24 +32,30 @@ const PlacesPage = () => {
  </Link>
 </div>
       )}
-
+      
       {action==='new'&&(
       <PlacesFormPage/> 
       )}
-   
-  {/* <div className="mt-4">
-    {places.length > 0 && places.map(place => (
-      <Link to={'/account/places/'+place._id} className="flex cursor-pointer gap-4 bg-gray-100 p-4 rounded-2xl">
-        <div className="flex w-32 h-32 bg-gray-300 grow shrink-0">
-      
-        </div>
-        <div className="grow-0 shrink">
-          <h2 className="text-xl">{place.title}</h2>
-          <p className="text-sm mt-2">{place.description}</p>
-        </div>
-      </Link>
-    ))}
-  </div> */}
+ 
+<div>
+  { places.length>0 && places.map(place=>(
+    <Link to={'/account/places/'+place._id} className='flex gap-4 grow shrink-0 bg-gray-200 p-4 rounded-2xl'>
+<div className='w-32 h-32 bg-gray-100'>{place.photos.length>0 &&(
+<div> 
+  <img src={'http://localhost:4000/'+place.photos[0]} alt='asdfsa'></img>
+</div>
+ 
+)}</div>
+<div className='grow-0 shrink '>
+<h2 className='text-xl '>{place.title}</h2>
+<p className='text-sm mt-2 '>{place.description}</p>
+</div>
+
+    </Link>
+  ))}
+</div>
+
+
   </div>
   )
 }

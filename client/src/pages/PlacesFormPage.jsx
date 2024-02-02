@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import Perks from '../Perks';
 import axios from 'axios';
@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import AccountNav from '../AccountNav';
 
 const PlacesFormPage = () => {
+  const {id}=useParams()
     const navigate= useNavigate()
   const {action}=useParams()
   const [title,setTitle] = useState('');
@@ -22,6 +23,23 @@ const PlacesFormPage = () => {
   const [maxGuests,setMaxGuests] = useState(1);
   const [price,setPrice] = useState(100);
   const [redirect,setRedirect] = useState(false);
+
+  useEffect(()=>{
+if(!id){return ;}
+axios.get('/places/'+id).then(response=>{
+  const {data}=response;
+  setTitle(data.title);
+  setAddress(data.address);
+  setAddedPhotos(data.photos);
+  setDescription(data.description);
+  setPerks(data.perks);
+  setExtraInfo(data.extraInfo);
+  setCheckIn(data.checkIn);
+  setCheckOut(data.checkOut);
+  setMaxGuests(data.maxGuests);
+  setPrice(data.price);
+})
+  },[id])
   function inputHeader(text) {
     return (
       <h2 className="text-2xl mt-4">{text}</h2>
@@ -40,22 +58,22 @@ const PlacesFormPage = () => {
       </>
     );
   }
-  async function addNewPlace(ev) {
+  async function savePlace(ev) {
     ev.preventDefault();
- await axios.post('/places', {
-      title,
-      address,
-      description,
-      photos: addedPhotos,
-      perks,
-      extraInfo,
-      checkIn,
-      checkOut,
-      maxGuests,
-      price
-    });
+    const placeData = {
+      title, address, addedPhotos,
+      description, perks, extraInfo,
+      checkIn, checkOut, maxGuests, price,
+    };
+    if(id){// update
+await axios.put('/places',{
+  id, ...placeData
+})
+    }else{//create
+      await axios.post('/places', {...placeData});
+     
+    }
     setRedirect(true)
-
   }
   if(redirect&&action!='new'){
     navigate('/account/places')
@@ -64,7 +82,7 @@ const PlacesFormPage = () => {
 
     <div>
         <AccountNav/>
-    <form className='p-5' onSubmit={addNewPlace}>
+    <form className='p-5' onSubmit={savePlace}>
     {preInput('Title', 'Title for your place. should be short and catchy as in advertisement')}
     <input type="text" value={title} onChange={ev => setTitle(ev.target.value)} placeholder="title, for example: My lovely apt"/>
    {preInput('Address', 'Address to this place')}
