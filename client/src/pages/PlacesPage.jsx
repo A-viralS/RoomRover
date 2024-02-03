@@ -11,7 +11,7 @@ import AccountNav from '../AccountNav';
 const PlacesPage = () => {
   const [places,setPlaces]=useState([])
   useEffect(()=>{
-axios.get('/places').then(({data})=>{
+axios.get('/user-places').then(({data})=>{
 setPlaces(data)
 })
 
@@ -37,22 +37,26 @@ setPlaces(data)
       <PlacesFormPage/> 
       )}
  
-<div>
-  { places.length>0 && places.map(place=>(
-    <Link to={'/account/places/'+place._id} className='flex gap-4 grow shrink-0 bg-gray-200 p-4 rounded-2xl'>
-<div className='w-32 h-32 bg-gray-100'>{place.photos.length>0 &&(
-<div> 
-  <img src={'http://localhost:4000/'+place.photos[0]} alt='asdfsa'></img>
-</div>
- 
-)}</div>
-<div className='grow-0 shrink '>
-<h2 className='text-xl '>{place.title}</h2>
-<p className='text-sm mt-2 '>{place.description}</p>
-</div>
-
-    </Link>
-  ))}
+<div className=''>
+{places.length > 0 && places.map((place) => (
+  <Link to={`/account/places/${place._id}`} className="flex cursor-pointer mt-4 gap-4 bg-gray-100 p-4 rounded-2xl">
+    <div className='w-32 h-40 object-cover bg-gray-100'>
+      {place.photos.length > 0 && (
+        <div className="flex w-44 h-44 rounded-xl bg-gray-300 overflow-hidden">
+          <img
+            src={`http://localhost:4000/${place.photos[0]}`}
+            alt='asdfsa'
+            className='object-cover rounded-xl w-full h-full'
+          />
+        </div>
+      )}
+    </div>
+    <div className='grow-0 ml-16 shrink mx-2'>
+      <h2 className='text-xl ml-16'>{place.title}</h2>
+      <p className='text-sm mt-2 ml-16'>{place.description}</p>
+    </div>
+  </Link>
+))}
 </div>
 
 

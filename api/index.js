@@ -139,7 +139,7 @@ const photoMiddleware=multer({dest:'uploads/'});
       });
     });
 
-app.get('/places', async (req,res)=>{
+app.get('/user-places', async (req,res)=>{
   const {token}=req.cookies;
   jwt.verify(token, jwtSecret, {}, async (err, userData) =>  {
     if (err) throw err;
@@ -174,5 +174,11 @@ app.put('/places', async (req,res) => {
     }
   });
 });
+
+app.get('/places',async(req,res)=>{
+  const places=await Place.find()
+  res.json(places)
+})
+
 PORT=4000
   app.listen(PORT, ()=>console.log(`server running on port ${PORT}`))
