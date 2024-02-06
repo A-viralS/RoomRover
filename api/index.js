@@ -5,6 +5,7 @@ const app=express();
 const path=require('path')
 const User= require('./models/User')
 const Place=require('./models/Place')
+const Booking=require('./models/Booking')
 const bcrypt = require('bcryptjs');
 const mongoose= require('mongoose')
 const jwt = require('jsonwebtoken')
@@ -15,17 +16,15 @@ const fs=require('fs')
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret= "secret"
 app.use(cookieParser())
-
 const testPath=__dirname+'/uploads'
 console.log(testPath);
 app.use(express.static(path.resolve(testPath)));
-
-
 
 app.use(cors({
     credentials: true,
     origin: 'http://localhost:5173',
   }));
+  
   mongoose
   .connect(process.env.MONGO_URL)
   .then(e=>console.log("mongoFuckingDB connected"))
@@ -149,11 +148,13 @@ app.get('/user-places', async (req,res)=>{
 
   })
 })
+
 app.get('/places/:id',async(req,res)=>{
   const {id}=req.params;
   res.json(await Place.findById(id))
 
 })
+
 app.put('/places', async (req,res) => {
 
   const {token} = req.cookies;
@@ -179,6 +180,42 @@ app.get('/places',async(req,res)=>{
   const places=await Place.find()
   res.json(places)
 })
+
+function getUserDataFromReq(req) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(req.cookies.token, jwtSecret, {}, async (err, userData) => {
+      if (err) throw err;
+      resolve(userData);
+    });
+  });
+}
+app.post('/bookings', async (req, res) => {
+  mongoose.connect(process.env.MONGO_URL);
+  const userData = await getUserDataFromReq(req);
+  const {
+    place,checkIn,checkOut,numberOfGuests,name,phone,price,
+  } = req.body;
+  Booking.create({
+    place,checkIn,checkOut,numberOfGuests,name,phone,price,
+    user:userData.id,
+  }).then((doc) => {
+    res.json(doc);
+  }).catch((err) => {
+    throw err;
+  });
+});
+
+// app.get('/bookings', async (req, res) => {
+//   mongoose.connect(process.env.MONGO_URL);
+//   const userData = await getUserDataFromReq(req);
+//   const bookings = await Booking.find({user:userData.id});
+//   res.json(bookings);
+// })
+app.get('/bookings', async (req,res) => {
+  mongoose.connect(process.env.MONGO_URL);
+  const userData = await getUserDataFromReq(req);
+  res.json( await Booking.find({user:userData.id}).populate('place') );
+});
 
 PORT=4000
   app.listen(PORT, ()=>console.log(`server running on port ${PORT}`))
