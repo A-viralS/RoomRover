@@ -38,7 +38,7 @@ app.use(cors({
   .then(e=>console.log("mongoDB connected"))
     res.json('test ok ')
   })
-  app.post('/register',async (req,res)=>{
+  app.post('/api/register',async (req,res)=>{
     mongoose
   .connect(process.env.MONGO_URL)
   .then(e=>console.log("mongoDB connected"))
@@ -57,7 +57,7 @@ try {
 }
   })
 
-  app.post('/login',async (req,res)=>{
+  app.post('/api/login',async (req,res)=>{
     mongoose
   .connect(process.env.MONGO_URL)
   .then(e=>console.log("mongoDB connected"))
@@ -83,7 +83,7 @@ try {
       }
     });
 
-    app.get('/profile',(req,res)=>{
+    app.get('/api/profile',(req,res)=>{
       
     
       const {token}=req.cookies;
@@ -101,7 +101,7 @@ try {
     })
 
 
-    app.post('/logout',(req,res)=>{
+    app.post('/api/logout',(req,res)=>{
       mongoose
   .connect(process.env.MONGO_URL)
   .then(e=>console.log("mongoDB connected"))
@@ -109,7 +109,7 @@ try {
     })
 
 
-    app.post('/upload-by-link', async (req,res)=>{
+    app.post('/api/upload-by-link', async (req,res)=>{
       mongoose
   .connect(process.env.MONGO_URL)
   .then(e=>console.log("mongoDB connected"))
@@ -165,7 +165,7 @@ async function uploadToS3(path, originalname, mimetype) {
 }
 const photoMiddleware=multer({dest:'/tmp'});
 
-    app.post('/upload',photoMiddleware.array('photos',100), async(req,res)=>{
+    app.post('/api/upload',photoMiddleware.array('photos',100), async(req,res)=>{
       mongoose
   .connect(process.env.MONGO_URL)
   .then(e=>console.log("mongoDB connected"))
@@ -179,7 +179,7 @@ const photoMiddleware=multer({dest:'/tmp'});
       res.json(uploadedFiles);
     })
 
-    app.post('/places', (req,res) => {
+    app.post('/api/places', (req,res) => {
       mongoose
   .connect(process.env.MONGO_URL)
   .then(e=>console.log("mongoDB connected"))
@@ -201,7 +201,7 @@ const photoMiddleware=multer({dest:'/tmp'});
       });
     });
 
-app.get('/user-places', async (req,res)=>{
+app.get('/api/user-places', async (req,res)=>{
   mongoose
   .connect(process.env.MONGO_URL)
   .then(e=>console.log("mongoDB connected"))
@@ -215,7 +215,7 @@ app.get('/user-places', async (req,res)=>{
   })
 })
 
-app.get('/places/:id',async(req,res)=>{
+app.get('/api/places/:id',async(req,res)=>{
   mongoose
   .connect(process.env.MONGO_URL)
   .then(e=>console.log("mongoDB connected"))
@@ -224,7 +224,7 @@ app.get('/places/:id',async(req,res)=>{
 
 })
 
-app.put('/places', async (req,res) => {
+app.put('/api/places', async (req,res) => {
 
   mongoose
   .connect(process.env.MONGO_URL)
@@ -248,7 +248,7 @@ app.put('/places', async (req,res) => {
   });
 });
 
-app.get('/places',async(req,res)=>{
+app.get('/api/places',async(req,res)=>{
   mongoose
   .connect(process.env.MONGO_URL)
   .then(e=>console.log("mongoDB connected"))
@@ -264,7 +264,7 @@ function getUserDataFromReq(req) {
     });
   });
 }
-app.post('/bookings', async (req, res) => {
+app.post('/api/bookings', async (req, res) => {
   mongoose
   .connect(process.env.MONGO_URL)
   .then(e=>console.log("mongoDB connected"))
@@ -289,7 +289,7 @@ app.post('/bookings', async (req, res) => {
 //   const bookings = await Booking.find({user:userData.id});
 //   res.json(bookings);
 // })
-app.get('/bookings', async (req,res) => {
+app.get('/api/bookings', async (req,res) => {
   mongoose
   .connect(process.env.MONGO_URL)
   .then(e=>console.log("mongoDB connected"))
