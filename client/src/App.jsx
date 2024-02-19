@@ -16,7 +16,7 @@ import PlacesFormPage from './pages/PlacesFormPage'
 import BoookingsPage from './pages/BoookingsPage'
 import BookingPage from './pages/BookingPage'
 
-axios.defaults.baseURL = import.meta.env.VITE_API_URL
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL
 axios.defaults.withCredentials = true
 
 function App () {
