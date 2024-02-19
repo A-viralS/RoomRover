@@ -1,0 +1,33 @@
+# Query: 3000
+# ContextLines: 1
+
+10 results - 2 files
+
+client/package-lock.json:
+  1101          "browserslist": "^4.22.2",
+  1102:         "caniuse-lite": "^1.0.30001578",
+  1103          "fraction.js": "^4.3.7",
+
+  1236        "dependencies": {
+  1237:         "caniuse-lite": "^1.0.30001580",
+  1238          "electron-to-chromium": "^1.4.648",
+
+  1290      "node_modules/caniuse-lite": {
+  1291:       "version": "1.0.30001580",
+  1292:       "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001580.tgz",
+  1293        "integrity": "sha512-mtj5ur2FFPZcCEpXFy8ADXbDACuNFXg6mxVDqp7tqooX6l3zwm+d8EPoeOSIFRDvHs8qu7/SLFOGniULkcH2iA==",
+
+client/yarn.lock:
+  626      browserslist "^4.22.2"
+  627:     caniuse-lite "^1.0.30001578"
+  628      fraction.js "^4.3.7"
+
+  701    dependencies:
+  702:     caniuse-lite "^1.0.30001580"
+  703      electron-to-chromium "^1.4.648"
+
+  730  
+  731: caniuse-lite@^1.0.30001578, caniuse-lite@^1.0.30001580:
+  732:   version "1.0.30001580"
+  733:   resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001580.tgz"
+  734    integrity sha512-mtj5ur2FFPZcCEpXFy8ADXbDACuNFXg6mxVDqp7tqooX6l3zwm+d8EPoeOSIFRDvHs8qu7/SLFOGniULkcH2iA==

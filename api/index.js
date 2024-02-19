@@ -12,9 +12,14 @@ const jwt = require('jsonwebtoken')
 const cookieParser=require('cookie-parser')
 const multer=require('multer')
 const imageDownloader=require('image-downloader')
+const {S3Client, PutObjectCommand } = require('@aws-sdk/client-s3')
 const fs=require('fs')
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret= "secret"
+const mime=require('mime-types')
+
+const bucket = 'room-rover';
+
 app.use(cookieParser())
 const testPath=__dirname+'/uploads'
 console.log(testPath);
@@ -25,14 +30,18 @@ app.use(cors({
     origin: 'http://localhost:5173',
   }));
   
-  mongoose
-  .connect(process.env.MONGO_URL)
-  .then(e=>console.log("mongoFuckingDB connected"))
+  
   app.use(express.json())
   app.get('/test', (req,res)=>{
+    mongoose
+  .connect(process.env.MONGO_URL)
+  .then(e=>console.log("mongoDB connected"))
     res.json('test ok ')
   })
   app.post('/register',async (req,res)=>{
+    mongoose
+  .connect(process.env.MONGO_URL)
+  .then(e=>console.log("mongoDB connected"))
     const{name,email,password}=req.body;
     console.log(name,email,password);
 try {
@@ -49,7 +58,10 @@ try {
   })
 
   app.post('/login',async (req,res)=>{
-    mongoose.connect(process.env.MONGO_URL);
+    mongoose
+  .connect(process.env.MONGO_URL)
+  .then(e=>console.log("mongoDB connected"))
+
    const {email,password}=req.body;
     const userDoc=await User.findOne({email})
     if (userDoc) {
@@ -90,36 +102,87 @@ try {
 
 
     app.post('/logout',(req,res)=>{
+      mongoose
+  .connect(process.env.MONGO_URL)
+  .then(e=>console.log("mongoDB connected"))
       res.cookie('token','').json(true);//sets the cookie as empty
     })
 
 
     app.post('/upload-by-link', async (req,res)=>{
+      mongoose
+  .connect(process.env.MONGO_URL)
+  .then(e=>console.log("mongoDB connected"))
       const {link}=req.body
       const newName='photo'+Date.now()+'.jpg'
      await imageDownloader.image({
         url:link,
-        dest: testPath+'/'+newName
+        dest: '/tmp/'+newName
       })
-      res.json(newName)
+      const url= await uploadToS3('/tmp/'+newName,newName,mime.lookup('/tmp'+newName))
+      res.json(url)
     });
 
-const photoMiddleware=multer({dest:'uploads/'});
 
-    app.post('/upload',photoMiddleware.array('photos',100),(req,res)=>{
+
+
+//UPALOD TO S3 
+
+function getRegionFromArn(arn) {
+  
+  const arnParts = arn.split(":");
+  if (arnParts.length >= 4) {
+    return arnParts[3];
+  }
+  return null; // Unable to determine the region
+}
+
+const arn = "arn:aws:iam::202593618591:user/room-rover";
+const region = getRegionFromArn(arn);
+
+console.log(region);
+
+async function uploadToS3(path, originalname, mimetype) {
+  const client = new S3Client({
+    region: 'us-east-1',
+    credentials: {
+      accessKeyId: process.env.S3_ACCESS_KEY,
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+    },
+  });
+  const parts = originalname.split('.');
+  const ext = parts[parts.length - 1];
+  const newFilename = Date.now() + '.' + ext;
+  const data=await client.send(new PutObjectCommand({
+    Bucket: bucket,
+    Body: fs.readFileSync(path),
+    Key: newFilename,
+    ContentType: mimetype,
+    ACL: 'public-read',
+  }));
+  console.log("s3 data",data);
+  return `https://${bucket}.s3.amazonaws.com/${newFilename}`;
+}
+const photoMiddleware=multer({dest:'/tmp'});
+
+    app.post('/upload',photoMiddleware.array('photos',100), async(req,res)=>{
+      mongoose
+  .connect(process.env.MONGO_URL)
+  .then(e=>console.log("mongoDB connected"))
       const uploadedFiles =[];
+      console.log("req.files",req.files);
       for (let i = 0; i < req.files.length; i++) {
-      const {path, originalname} = req.files[i];
-      const parts = originalname.split('.');
-      const ext = parts [parts.length- 1];
-      const newPath = path + '.' + ext;
-      fs.renameSync (path, newPath);
-      uploadedFiles.push (newPath.replace('uploads/',''));//replaces uploads in the name of file to empty string
-      res.json(uploadedFiles);
+     const {path, originalname,mimetype} = req.files[i];
+    const url= await uploadToS3(path,originalname,mimetype)
+    uploadedFiles.push(url);
       }
+      res.json(uploadedFiles);
     })
 
     app.post('/places', (req,res) => {
+      mongoose
+  .connect(process.env.MONGO_URL)
+  .then(e=>console.log("mongoDB connected"))
       
       const {token} = req.cookies;
       const {
@@ -139,6 +202,9 @@ const photoMiddleware=multer({dest:'uploads/'});
     });
 
 app.get('/user-places', async (req,res)=>{
+  mongoose
+  .connect(process.env.MONGO_URL)
+  .then(e=>console.log("mongoDB connected"))
   const {token}=req.cookies;
   jwt.verify(token, jwtSecret, {}, async (err, userData) =>  {
     if (err) throw err;
@@ -150,6 +216,9 @@ app.get('/user-places', async (req,res)=>{
 })
 
 app.get('/places/:id',async(req,res)=>{
+  mongoose
+  .connect(process.env.MONGO_URL)
+  .then(e=>console.log("mongoDB connected"))
   const {id}=req.params;
   res.json(await Place.findById(id))
 
@@ -157,6 +226,9 @@ app.get('/places/:id',async(req,res)=>{
 
 app.put('/places', async (req,res) => {
 
+  mongoose
+  .connect(process.env.MONGO_URL)
+  .then(e=>console.log("mongoDB connected"))
   const {token} = req.cookies;
   const {
     id, title,address,addedPhotos,description,
@@ -177,6 +249,9 @@ app.put('/places', async (req,res) => {
 });
 
 app.get('/places',async(req,res)=>{
+  mongoose
+  .connect(process.env.MONGO_URL)
+  .then(e=>console.log("mongoDB connected"))
   const places=await Place.find()
   res.json(places)
 })
@@ -190,6 +265,9 @@ function getUserDataFromReq(req) {
   });
 }
 app.post('/bookings', async (req, res) => {
+  mongoose
+  .connect(process.env.MONGO_URL)
+  .then(e=>console.log("mongoDB connected"))
   mongoose.connect(process.env.MONGO_URL);
   const userData = await getUserDataFromReq(req);
   const {
@@ -212,10 +290,13 @@ app.post('/bookings', async (req, res) => {
 //   res.json(bookings);
 // })
 app.get('/bookings', async (req,res) => {
+  mongoose
+  .connect(process.env.MONGO_URL)
+  .then(e=>console.log("mongoDB connected"))
   mongoose.connect(process.env.MONGO_URL);
   const userData = await getUserDataFromReq(req);
   res.json( await Booking.find({user:userData.id}).populate('place') );
 });
 
-PORT=4000
+PORT= process.env.PORT || 4000
   app.listen(PORT, ()=>console.log(`server running on port ${PORT}`))

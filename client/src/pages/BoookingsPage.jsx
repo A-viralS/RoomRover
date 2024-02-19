@@ -14,6 +14,10 @@ export default function BookingsPage() {
       setBookings(response.data);
     });
   }, []);
+  
+  if(!bookings){
+    return 'loading'
+  }
   return (
     <div>
       <AccountNav />
