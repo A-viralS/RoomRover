@@ -129,7 +129,7 @@ await axios.put('/places',{
      </div>
      <div>
        <h3 className="mt-2 -mb-1">Price per night</h3>
-       <input type="number" 
+       <input type="text" 
        value={price}
        onChange={ev=>setPrice(ev.target.value)}
          />
