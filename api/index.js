@@ -26,10 +26,12 @@ console.log(testPath);
 app.use(express.static(path.resolve(testPath)));
 
 app.use(cors({
-    credentials: true,
-    origin: 'http://localhost:5173',
-  }));
-  
+  credentials: true,
+  origin: [
+    'http://localhost:5173',
+    'https://your-vercel-app.vercel.app'  // ✅ replace with your real frontend domain
+  ]
+}));
   
   app.use(express.json())
   app.get('/test', (req,res)=>{
