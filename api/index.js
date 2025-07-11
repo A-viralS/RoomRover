@@ -18,7 +18,7 @@ const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret= "secret"
 const mime=require('mime-types')
 
-const bucket = 'room-rover';
+const bucket = 'room-rover-new';
 
 app.use(cookieParser())
 const testPath=__dirname+'/uploads'
@@ -143,41 +143,60 @@ const region = getRegionFromArn(arn);
 console.log(region);
 
 async function uploadToS3(path, originalname, mimetype) {
-  const client = new S3Client({
-    region: 'us-east-1',
-    credentials: {
-      accessKeyId: process.env.S3_ACCESS_KEY,
-      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-    },
-  });
-  const parts = originalname.split('.');
-  const ext = parts[parts.length - 1];
-  const newFilename = Date.now() + '.' + ext;
-  const data=await client.send(new PutObjectCommand({
-    Bucket: bucket,
-    Body: fs.readFileSync(path),
-    Key: newFilename,
-    ContentType: mimetype,
-    ACL: 'public-read',
-  }));
-  console.log("s3 data",data);
-  return `https://${bucket}.s3.amazonaws.com/${newFilename}`;
+  try {
+    const client = new S3Client({
+      region: 'ap-south-1',
+      credentials: {
+        accessKeyId: process.env.S3_ACCESS_KEY,
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+      },
+    });
+
+    const parts = originalname.split('.');
+    const ext = parts[parts.length - 1];
+    const newFilename = Date.now() + '.' + ext;
+
+    const data = await client.send(new PutObjectCommand({
+      Bucket: bucket,
+      Body: fs.readFileSync(path),
+      Key: newFilename,
+      ContentType: mimetype,
+  //  ACL: 'public-read'
+    }));
+
+    console.log("S3 Upload Success:", data);
+    return `https://${bucket}.s3.amazonaws.com/${newFilename}`;
+    // return `https://${bucket}.s3.amazonaws.com/${newFilename}`;
+  } catch (err) {
+    console.error("S3 Upload Error:", err);
+    throw err; // propagate error to caller
+  }
 }
+
 const photoMiddleware=multer({dest:'/tmp'});
 
-    app.post('/api/upload',photoMiddleware.array('photos',100), async(req,res)=>{
-      mongoose
+   app.post('/api/upload', photoMiddleware.array('photos', 100), async (req, res) => {
+  try {
+ mongoose
   .connect(process.env.MONGO_URL)
   .then(e=>console.log("mongoDB connected"))
-      const uploadedFiles =[];
-      console.log("req.files",req.files);
-      for (let i = 0; i < req.files.length; i++) {
-     const {path, originalname,mimetype} = req.files[i];
-    const url= await uploadToS3(path,originalname,mimetype)
-    uploadedFiles.push(url);
-      }
-      res.json(uploadedFiles);
-    })
+
+    const uploadedFiles = [];
+    console.log("req.files", req.files);
+
+    for (let i = 0; i < req.files.length; i++) {
+      const { path, originalname, mimetype } = req.files[i];
+      const url = await uploadToS3(path, originalname, mimetype);
+      uploadedFiles.push(url);
+    }
+
+    res.json(uploadedFiles);
+  } catch (err) {
+    console.error("Upload failed:", err);
+    res.status(500).json({ error: "Upload failed", details: err.message });
+  }
+});
+
 
     app.post('/api/places', (req,res) => {
       mongoose
